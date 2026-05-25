@@ -171,6 +171,11 @@ def agregar_primer_producto_al_carrito(driver):
     
     botones_agregar = driver.find_elements(*SELECTORES_INVENTARIO["boton_agregar"])
     if botones_agregar:
+        # Scroll al boton para asegurar que sea visible y clickeable
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", botones_agregar[0])
+        # Pequena espera para que termine el scroll
+        import time
+        time.sleep(0.3)
         botones_agregar[0].click()
         return info_producto["nombre"] if info_producto else "Producto desconocido"
     return None
@@ -179,7 +184,10 @@ def agregar_primer_producto_al_carrito(driver):
 def obtener_contador_carrito(driver):
     """Obtiene el numero que muestra el contador del carrito."""
     try:
-        badge = driver.find_element(*SELECTORES_INVENTARIO["carrito_contador"])
+        # Espera hasta 5 segundos para que aparezca el badge
+        badge = WebDriverWait(driver, 5).until(
+            EC.visibility_of_element_located(SELECTORES_INVENTARIO["carrito_contador"])
+        )
         return int(badge.text)
     except:
         return 0
